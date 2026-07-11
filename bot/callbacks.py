@@ -1,13 +1,14 @@
 from telegram import Update
-
 from telegram.ext import ContextTypes
 
 from services.sheets import sheets
 from services.categorias import CATEGORIAS
 
 
-async def seleccionar_categoria(update: Update,
-                    context: ContextTypes.DEFAULT_TYPE):
+async def seleccionar_categoria(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+):
 
     query = update.callback_query
 
@@ -20,13 +21,9 @@ async def seleccionar_categoria(update: Update,
     pendiente = context.user_data.get("pendiente")
 
     if pendiente is None:
-
         await query.edit_message_text(
-
             "No hay ningún gasto pendiente."
-
         )
-
         return
 
     sheets.agregar_movimiento(
@@ -40,4 +37,16 @@ async def seleccionar_categoria(update: Update,
     sheets.guardar_categoria(
         pendiente["descripcion"],
         categoria,
+    )
+
+    context.user_data.pop("pendiente", None)
+
+    await query.edit_message_text(
+        f"""✅ Registrado
+
+💲 ${pendiente['monto']:,.0f}
+
+📂 {categoria}
+
+📝 {pendiente['descripcion']}"""
     )
