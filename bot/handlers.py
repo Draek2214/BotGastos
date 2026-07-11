@@ -4,7 +4,7 @@ from telegram.ext import ContextTypes
 from services.parser import interpretar
 from bot.keyboards import teclado_categorias
 from services.sheets import sheets
-
+from services.logger import logger
 
 async def recibir(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -57,3 +57,6 @@ async def recibir(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Elegí la categoría""",
         reply_markup=teclado_categorias(),
     )
+    logger.info(
+    f"Mensaje recibido: {descripcion}"
+)

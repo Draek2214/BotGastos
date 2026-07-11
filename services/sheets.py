@@ -1,7 +1,10 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
-
+from config import (
+    CREDENTIALS_FILE,
+    SPREADSHEET_NAME,
+    )
 
 class SheetsService:
 
@@ -13,13 +16,13 @@ class SheetsService:
     def __init__(self):
 
         self.credenciales = Credentials.from_service_account_file(
-            "credentials.json",
+            CREDENTIALS_FILE,
             scopes=self.SCOPES,
         )
 
         self.cliente = gspread.authorize(self.credenciales)
 
-        self.spreadsheet = self.cliente.open("Gastos Mensuales")
+        self.spreadsheet = self.cliente.open(SPREADSHEET_NAME)
 
         self.movimientos = self.spreadsheet.worksheet("Movimientos")
         self.categorias = self.spreadsheet.worksheet("Categorias")

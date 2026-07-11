@@ -1,3 +1,15 @@
-from services.sheets import agregar_gasto
+from pathlib import Path
 
-agregar_gasto(3500, "Prueba desde Python")
+# Carpeta raíz del proyecto
+BASE_DIR = Path(__file__).resolve().parent
+
+# Google
+SPREADSHEET_NAME = "Gastos Mensuales"
+
+MOVIMIENTOS_SHEET = "Movimientos"
+CATEGORIAS_SHEET = "Categorias"
+
+CREDENTIALS_FILE = BASE_DIR / "credentials.json"
+
+# Bot
+BOT_NAME = "Bot Gastos"

@@ -15,6 +15,15 @@ from telegram.ext import (
     CallbackQueryHandler,
 )
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+async def error_handler(update, context):
+
+    logger.exception(context.error)
+
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
@@ -37,3 +46,4 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, recibir))
 print("Bot iniciado...")
 
 app.run_polling()
+app.add_error_handler(error_handler)
