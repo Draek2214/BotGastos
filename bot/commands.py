@@ -40,6 +40,7 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"{movimiento['Categoria']} "
             f"{movimiento['Descripcion']} "
             f"$ {monto:,.0f}\n"
+            f"💳 {movimiento['MedioPago']}\n"
         )
 
     mensaje += (
@@ -100,6 +101,7 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mensaje += (
             f"{categoria:<18}"
             f"$ {monto:,.0f}\n"
+            f"💳 {movimiento['MedioPago']}\n"
         )
 
     mensaje += (
@@ -125,10 +127,11 @@ async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     mensaje = (
         "📝 Último movimiento\n\n"
         f"📅 {movimiento['Fecha']} {movimiento['Hora']}\n\n"
-        f"{movimiento['Categoria']}\n"
+        f"📂 {movimiento['Categoria']}\n"
         f"📝 {movimiento['Descripcion']}\n"
+        f"💳 {movimiento['MedioPago']}\n"
         f"💰 $ {float(movimiento['Monto']):,.0f}"
-    )
+)
 
     await update.message.reply_text(
     mensaje,

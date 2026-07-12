@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import InlineKeyboardMarkup
 
 from services.categorias import CATEGORIAS
-
+from services.medios_pago import MEDIOS_PAGO
 
 def teclado_categorias():
 
@@ -40,3 +40,18 @@ def teclado_ultimo(fila):
             ]
         ]
     )
+    
+
+def teclado_medios_pago():
+
+    botones = []
+
+    for i, medio in enumerate(MEDIOS_PAGO):
+        botones.append([
+            InlineKeyboardButton(
+                medio,
+                callback_data=f"medio_{i}"
+            )
+        ])
+
+    return InlineKeyboardMarkup(botones)

@@ -23,22 +23,23 @@ async def recibir(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if categoria:
 
-        sheets.agregar_movimiento(
-            "Gasto",
-            categoria,
-            monto,
-            descripcion,
-            update.effective_user.id,
-        )
+        context.user_data["pendiente"] = {
+            "monto": monto,
+            "descripcion": descripcion,
+            "categoria": categoria,
+        }
+
+        from bot.keyboards import teclado_medios_pago
 
         await update.message.reply_text(
-            f"""✅ Registrado automáticamente
+            f"""💲 ${monto:,.0f}
 
-💲 ${monto:,.0f}
+    📂 {categoria}
 
-📂 {categoria}
+    📝 {descripcion}
 
-📝 {descripcion}"""
+    ¿Cómo pagaste?""",
+            reply_markup=teclado_medios_pago(),
         )
 
         return

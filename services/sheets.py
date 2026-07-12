@@ -56,6 +56,7 @@ class SheetsService:
         categoria,
         monto,
         descripcion,
+        medio_pago,
         usuario,
     ):
 
@@ -70,6 +71,7 @@ class SheetsService:
                 categoria,
                 monto,
                 descripcion,
+                medio_pago,
                 usuario,
             ]
         )

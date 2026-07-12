@@ -6,6 +6,7 @@ from bot.handlers import recibir
 
 from bot.callbacks import (
     seleccionar_categoria,
+    seleccionar_medio_pago,
     eliminar_movimiento,
 )
 
@@ -61,6 +62,12 @@ app.add_handler(
     CallbackQueryHandler(
         eliminar_movimiento,
         pattern="^eliminar_",
+    )
+)
+app.add_handler(
+    CallbackQueryHandler(
+        seleccionar_medio_pago,
+        pattern="^medio_",
     )
 )
 app.add_handler(CommandHandler("start", start))
