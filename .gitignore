@@ -1,4 +1,18 @@
+# Entorno virtual
 .venv/
+
+# Variables de entorno
 .env
+
+# Credenciales Google
 credentials.json
+
+# Caché de Python
 __pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
