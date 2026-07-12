@@ -5,7 +5,9 @@ from services.parser import interpretar
 from bot.keyboards import teclado_categorias
 from services.sheets import sheets
 from services.logger import logger
+from services.auth import requiere_autorizacion
 
+@requiere_autorizacion
 async def recibir(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     datos = interpretar(update.message.text)

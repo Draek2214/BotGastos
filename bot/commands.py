@@ -6,7 +6,9 @@ from telegram.ext import ContextTypes
 
 from services.sheets import sheets
 from bot.keyboards import teclado_ultimo
+from services.auth import requiere_autorizacion
 
+@requiere_autorizacion
 async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     usuario = update.effective_user.id
@@ -50,7 +52,7 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(mensaje)
 
-
+@requiere_autorizacion
 async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     usuario = update.effective_user.id
@@ -110,6 +112,8 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(mensaje)
+
+@requiere_autorizacion    
 async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     movimiento = sheets.obtener_ultimo_movimiento(
