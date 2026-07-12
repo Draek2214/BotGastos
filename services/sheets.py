@@ -115,7 +115,9 @@ class SheetsService:
 
         movimientos = []
 
-        for fila in datos:
+        for numero_fila, fila in enumerate(datos, start=2):
+
+            fila["_fila"] = numero_fila
 
             try:
 
@@ -128,5 +130,24 @@ class SheetsService:
             movimientos.append(fila)
 
         return movimientos
+    # --------------------------------------------------
+
+    def obtener_ultimo_movimiento(self, usuario):
+
+        movimientos = self.obtener_movimientos()
+
+        movimientos = [
+            m for m in movimientos
+            if str(m["Usuario"]) == str(usuario)
+        ]
+
+        if not movimientos:
+            return None
+
+        return movimientos[-1]
+    
+    def eliminar_movimiento(self, fila):
+
+        self.movimientos.delete_rows(fila)
 
 sheets = SheetsService()

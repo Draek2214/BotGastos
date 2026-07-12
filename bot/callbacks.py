@@ -50,3 +50,27 @@ async def seleccionar_categoria(
 
 📝 {pendiente['descripcion']}"""
     )
+async def eliminar_movimiento(update: Update,
+                              context: ContextTypes.DEFAULT_TYPE):
+
+    query = update.callback_query
+
+    await query.answer()
+
+    try:
+
+        fila = int(query.data.replace("eliminar_", ""))
+
+        sheets.eliminar_movimiento(fila)
+
+        await query.edit_message_text(
+            "✅ Movimiento eliminado."
+        )
+
+    except Exception:
+
+        await query.edit_message_text(
+            "❌ No se pudo eliminar el movimiento."
+        )
+
+        raise

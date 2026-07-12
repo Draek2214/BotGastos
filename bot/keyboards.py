@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import InlineKeyboardMarkup
 
 from services.categorias import CATEGORIAS
@@ -27,3 +27,16 @@ def teclado_categorias():
         teclado.append(fila)
 
     return InlineKeyboardMarkup(teclado)
+
+def teclado_ultimo(fila):
+
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    "🗑️ Eliminar",
+                    callback_data=f"eliminar_{fila}"
+                )
+            ]
+        ]
+    )
