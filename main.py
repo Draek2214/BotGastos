@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-
+from bot.commands import hoy
 from bot.handlers import recibir
 
 from bot.callbacks import seleccionar_categoria
@@ -41,6 +41,7 @@ app.add_handler(
 
 )
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("hoy", hoy))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, recibir))
 
 print("Bot iniciado...")

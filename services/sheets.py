@@ -107,5 +107,26 @@ class SheetsService:
         # Actualizar la caché sin volver a leer la hoja
         self.cache_categorias[texto.lower()] = categoria
 
+    # --------------------------------------------------
+
+    def obtener_movimientos(self):
+
+        datos = self.movimientos.get_all_records()
+
+        movimientos = []
+
+        for fila in datos:
+
+            try:
+
+                fila["Monto"] = float(str(fila["Monto"]).replace(",", "."))
+
+            except:
+
+                fila["Monto"] = 0
+
+            movimientos.append(fila)
+
+        return movimientos
 
 sheets = SheetsService()
