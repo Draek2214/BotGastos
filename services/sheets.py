@@ -1,10 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
-from config import (
-    CREDENTIALS_FILE,
-    SPREADSHEET_NAME,
-    )
+from config import CREDENTIALS_FILE
 
 class SheetsService:
 
@@ -13,16 +10,18 @@ class SheetsService:
         "https://www.googleapis.com/auth/drive",
     ]
 
-    def __init__(self):
+    def __init__(self, spreadsheet_id):
 
         self.credenciales = Credentials.from_service_account_file(
-            CREDENTIALS_FILE,
-            scopes=self.SCOPES,
-        )
+        CREDENTIALS_FILE,
+        scopes=self.SCOPES,
+    )
 
         self.cliente = gspread.authorize(self.credenciales)
 
-        self.spreadsheet = self.cliente.open(SPREADSHEET_NAME)
+        self.spreadsheet = self.cliente.open_by_key(
+        spreadsheet_id
+    )
 
         self.movimientos = self.spreadsheet.worksheet("Movimientos")
         self.categorias = self.spreadsheet.worksheet("Categorias")
@@ -151,5 +150,3 @@ class SheetsService:
     def eliminar_movimiento(self, fila):
 
         self.movimientos.delete_rows(fila)
-
-sheets = SheetsService()

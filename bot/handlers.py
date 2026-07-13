@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes
 
 from services.parser import interpretar
 from bot.keyboards import teclado_categorias
-from services.sheets import sheets
+from services.sheets_manager import obtener_sheets
 from services.logger import logger
 from services.auth import requiere_autorizacion
 
@@ -11,7 +11,7 @@ from services.auth import requiere_autorizacion
 async def recibir(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     datos = interpretar(update.message.text)
-
+    sheets = obtener_sheets(update.effective_user.id)
     if datos is None:
         await update.message.reply_text(
             "Formato incorrecto.\n\nEjemplo:\n3500 café"

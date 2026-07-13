@@ -4,13 +4,13 @@ from collections import defaultdict
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from services.sheets import sheets
+from services.sheets_manager import obtener_sheets
 from bot.keyboards import teclado_ultimo
 from services.auth import requiere_autorizacion
 
 @requiere_autorizacion
 async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
+    sheets = obtener_sheets(update.effective_user.id)
     usuario = update.effective_user.id
 
     fecha_hoy = datetime.now().strftime("%d/%m/%Y")
@@ -54,7 +54,7 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @requiere_autorizacion
 async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
+    sheets = obtener_sheets(update.effective_user.id)
     usuario = update.effective_user.id
 
     hoy = datetime.now()
@@ -115,7 +115,7 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @requiere_autorizacion    
 async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
+    sheets = obtener_sheets(update.effective_user.id)
     movimiento = sheets.obtener_ultimo_movimiento(
         update.effective_user.id
     )
@@ -143,3 +143,34 @@ async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     movimiento["_fila"]
     )
 )
+    
+def mensaje_ayuda():
+
+    return """
+👋 ¡Bienvenido a Bot Gastos!
+
+Con este bot podés registrar tus gastos de forma rápida.
+
+💵 Ejemplos:
+
+3500 café
+25000 YPF
+18000 Carrefour
+
+📅 Comandos disponibles
+
+/hoy - Muestra los movimientos de hoy.
+
+/mes - Muestra los movimientos del mes.
+
+/ultimo - Muestra el último movimiento registrado.
+
+/ayuda - Muestra esta ayuda.
+"""
+
+
+async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    await update.message.reply_text(
+        mensaje_ayuda()
+    )

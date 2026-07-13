@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
+from services.config import ENV_FILE
 import os
 import logging
-from bot.commands import hoy, mes, ultimo
+from bot.commands import (hoy, mes, ultimo, ayuda, mensaje_ayuda)
 from bot.handlers import recibir
 
 from bot.callbacks import (
@@ -21,7 +22,7 @@ from telegram.ext import (
 )
 
 
-load_dotenv()
+load_dotenv(ENV_FILE)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
@@ -32,8 +33,9 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     await update.message.reply_text(
-        "¡Hola! Soy tu bot de gastos 💰"
+        mensaje_ayuda()
     )
 
 async def error_handler(update, context):
@@ -74,6 +76,8 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("hoy", hoy))
 app.add_handler(CommandHandler("mes", mes))
 app.add_handler(CommandHandler("ultimo", ultimo))
+app.add_handler(CommandHandler("ayuda", ayuda))
+app.add_handler(CommandHandler("comandos", ayuda))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, recibir))
 
 logger.info("Bot iniciado")

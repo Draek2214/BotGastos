@@ -1,12 +1,6 @@
 from pathlib import Path
 
-# ==========================================================
-# Rutas
-# ==========================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-
-CREDENTIALS_FILE = BASE_DIR / "credentials.json"
+from services.config import CREDENTIALS_FILE
 
 # ==========================================================
 # Google Sheets

@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from services.sheets import sheets
+from services.sheets_manager import obtener_sheets
 from services.categorias import CATEGORIAS
 from services.medios_pago import MEDIOS_PAGO
 
@@ -9,10 +9,11 @@ from bot.keyboards import teclado_medios_pago
 
 
 async def seleccionar_categoria(
+        
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ):
-
+    sheets = obtener_sheets(update.effective_user.id)
     query = update.callback_query
 
     await query.answer()
@@ -55,7 +56,7 @@ async def seleccionar_medio_pago(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ):
-
+    sheets = obtener_sheets(update.effective_user.id)
     query = update.callback_query
 
     await query.answer()
@@ -102,7 +103,7 @@ async def eliminar_movimiento(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ):
-
+    sheets = obtener_sheets(update.effective_user.id)
     query = update.callback_query
 
     await query.answer()
