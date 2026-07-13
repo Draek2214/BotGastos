@@ -6,7 +6,7 @@ from services.config import CREDENTIALS_FILE
 # Google Sheets
 # ==========================================================
 
-SPREADSHEET_NAME = "Gastos Mensuales"
+
 
 MOVIMIENTOS_SHEET = "Movimientos"
 CATEGORIAS_SHEET = "Categorias"

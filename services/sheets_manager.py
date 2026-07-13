@@ -3,6 +3,7 @@ from services.sheets import SheetsService
 USUARIOS = {
     1324935960: "1OuikAiIxV6PBhxaAjbIlZ1K4yLJDpFIQPy1Um1SJlBc",
     7894192209: "1OuikAiIxV6PBhxaAjbIlZ1K4yLJDpFIQPy1Um1SJlBc",
+    5665963204: "1FxdAhPpKZ1tVo6FzfdeDfQfeTFdik0kL6IuJxMq9f0w",
 }
 
 _instancias = {}
