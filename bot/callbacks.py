@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -52,6 +54,7 @@ async def seleccionar_categoria(
     )
 
 
+
 async def seleccionar_medio_pago(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
@@ -75,6 +78,7 @@ async def seleccionar_medio_pago(
 
         return
 
+    # Guardar el gasto
     sheets.agregar_movimiento(
         "Gasto",
         pendiente["categoria"],
@@ -84,7 +88,60 @@ async def seleccionar_medio_pago(
         update.effective_user.id,
     )
 
+    # --------------------------------------------------
+    # CALCULAR DISPONIBLE DEL MES
+    # --------------------------------------------------
+
+    ahora = datetime.now()
+
+    mes_actual = ahora.month
+    año_actual = ahora.year
+
+    movimientos = sheets.obtener_movimientos()
+
+    total_ingresos = 0
+    total_gastos = 0
+
+    for movimiento in movimientos:
+
+        fecha = datetime.strptime(
+            movimiento["Fecha"],
+            "%d/%m/%Y"
+        )
+
+        # Solo movimientos del mes actual
+        if (
+            fecha.month != mes_actual
+            or fecha.year != año_actual
+        ):
+            continue
+
+        monto = float(movimiento["Monto"])
+
+        tipo = movimiento.get(
+            "Tipo",
+            ""
+        ).strip().lower()
+
+        if tipo == "ingreso":
+
+            total_ingresos += monto
+
+        elif tipo == "gasto":
+
+            total_gastos += monto
+
+    disponible = total_ingresos - total_gastos
+
+    # --------------------------------------------------
+    # LIMPIAR GASTO PENDIENTE
+    # --------------------------------------------------
+
     context.user_data.pop("pendiente", None)
+
+    # --------------------------------------------------
+    # RESPUESTA
+    # --------------------------------------------------
 
     await query.edit_message_text(
         f"""✅ Registrado
@@ -95,9 +152,12 @@ async def seleccionar_medio_pago(
 
 💳 {medio}
 
-📝 {pendiente['descripcion']}"""
-    )
+📝 {pendiente['descripcion']}
 
+────────────────
+💵 Disponible este mes: $ {disponible:,.0f}"""
+    )
+    
 
 async def eliminar_movimiento(
     update: Update,

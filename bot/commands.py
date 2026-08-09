@@ -296,10 +296,14 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     movimientos = sheets.obtener_movimientos()
 
-    # Totales por categoría
+    # Totales
+    total_ingresos = 0
+    total_gastos = 0
+
+    # Gastos por categoría
     totales = defaultdict(float)
 
-    # Totales por medio de pago
+    # Gastos por medio de pago
     totales_pago = defaultdict(float)
 
     for movimiento in movimientos:
@@ -309,21 +313,57 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "%d/%m/%Y"
         )
 
-        if fecha.month != mes_anterior or fecha.year != año_anterior:
+        # Solo movimientos del mes anterior
+        if (
+            fecha.month != mes_anterior
+            or fecha.year != año_anterior
+        ):
             continue
 
         monto = float(movimiento["Monto"])
 
-        # Acumular por categoría
-        totales[movimiento["Categoria"]] += monto
+        tipo = movimiento.get(
+            "Tipo",
+            ""
+        ).strip().lower()
 
-        # Acumular por medio de pago
-        medio_pago = movimiento.get("MedioPago", "").strip()
+        # -------------------------
+        # INGRESOS
+        # -------------------------
 
-        if medio_pago:
-            totales_pago[medio_pago] += monto
+        if tipo == "ingreso":
 
-    if not totales:
+            total_ingresos += monto
+
+            continue
+
+        # -------------------------
+        # GASTOS
+        # -------------------------
+
+        if tipo == "gasto":
+
+            total_gastos += monto
+
+            # Acumular por categoría
+            categoria = movimiento.get(
+                "Categoria",
+                "Sin categoría"
+            )
+
+            totales[categoria] += monto
+
+            # Acumular por medio de pago
+            medio_pago = movimiento.get(
+                "MedioPago",
+                ""
+            ).strip()
+
+            if medio_pago:
+                totales_pago[medio_pago] += monto
+
+    # Si no hubo movimientos
+    if total_ingresos == 0 and total_gastos == 0:
 
         await update.message.reply_text(
             "📅 El mes anterior no registraste movimientos."
@@ -331,7 +371,10 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return
 
-    # Nombres de los meses
+    # -------------------------
+    # NOMBRES DE LOS MESES
+    # -------------------------
+
     nombres_meses = [
         "",
         "Enero",
@@ -355,28 +398,46 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     # -------------------------
-    # RESUMEN POR CATEGORÍA
+    # INGRESOS
     # -------------------------
 
-    for categoria, monto in sorted(
-        totales.items(),
-        key=lambda x: x[1],
-        reverse=True,
-    ):
-
-        mensaje += (
-            f"{categoria:<18}"
-            f"$ {monto:,.0f}\n"
-        )
-
-    mensaje += "\n────────────────\n"
-
-    total = sum(totales.values())
-
-    mensaje += f"💰 Total: $ {total:,.0f}\n"
+    mensaje += (
+        f"💰 Ingresos: $ {total_ingresos:,.0f}\n\n"
+    )
 
     # -------------------------
-    # RESUMEN POR MEDIO DE PAGO
+    # GASTOS POR CATEGORÍA
+    # -------------------------
+
+    if totales:
+
+        mensaje += "💸 Gastos por categoría\n\n"
+
+        for categoria, monto in sorted(
+            totales.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        ):
+
+            mensaje += (
+                f"{categoria:<18}"
+                f"$ {monto:,.0f}\n"
+            )
+
+    # -------------------------
+    # TOTAL Y DISPONIBLE
+    # -------------------------
+
+    disponible = total_ingresos - total_gastos
+
+    mensaje += (
+        f"\n────────────────\n"
+        f"💸 Total gastos: $ {total_gastos:,.0f}\n"
+        f"💵 Disponible:   $ {disponible:,.0f}\n"
+    )
+
+    # -------------------------
+    # MEDIO DE PAGO
     # -------------------------
 
     if totales_pago:
@@ -394,12 +455,8 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"$ {monto:,.0f}\n"
             )
 
-        mensaje += (
-            f"\n────────────────\n"
-            f"💰 Total: $ {sum(totales_pago.values()):,.0f}"
-        )
-
     await update.message.reply_text(mensaje)
+    
 
 @requiere_autorizacion
 async def ingreso(update: Update, context: ContextTypes.DEFAULT_TYPE):
