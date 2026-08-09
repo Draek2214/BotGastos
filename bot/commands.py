@@ -11,7 +11,6 @@ from services.auth import requiere_autorizacion
 @requiere_autorizacion
 async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets = obtener_sheets(update.effective_user.id)
-    usuario = update.effective_user.id
 
     fecha_hoy = datetime.now().strftime("%d/%m/%Y")
 
@@ -20,7 +19,6 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     movimientos_hoy = [
         m for m in movimientos
         if m["Fecha"] == fecha_hoy
-        and str(m["Usuario"]) == str(usuario)
     ]
 
     if not movimientos_hoy:
@@ -55,7 +53,7 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @requiere_autorizacion
 async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets = obtener_sheets(update.effective_user.id)
-    usuario = update.effective_user.id
+
 
     hoy = datetime.now()
 
@@ -65,8 +63,7 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for movimiento in movimientos:
 
-        if str(movimiento["Usuario"]) != str(usuario):
-            continue
+
 
         fecha = datetime.strptime(
             movimiento["Fecha"],
@@ -103,7 +100,6 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
         mensaje += (
             f"{categoria:<18}"
             f"$ {monto:,.0f}\n"
-            f"💳 {movimiento['MedioPago']}\n"
         )
 
     mensaje += (
@@ -116,9 +112,7 @@ async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @requiere_autorizacion    
 async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets = obtener_sheets(update.effective_user.id)
-    movimiento = sheets.obtener_ultimo_movimiento(
-        update.effective_user.id
-    )
+    movimiento = sheets.obtener_ultimo_movimiento()
 
     if movimiento is None:
 
@@ -156,12 +150,15 @@ Con este bot podés registrar tus gastos de forma rápida.
 3500 café
 25000 YPF
 18000 Carrefour
+y seguir los pasos de las respuestas del bot.
 
 📅 Comandos disponibles
 
 /hoy - Muestra los movimientos de hoy.
 
 /mes - Muestra los movimientos del mes.
+
+/mesanterior - Muestra los movimientos del mes anterior.
 
 /ultimo - Muestra el último movimiento registrado.
 
@@ -174,3 +171,72 @@ async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         mensaje_ayuda()
     )
+
+@requiere_autorizacion
+async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    sheets = obtener_sheets(update.effective_user.id)
+
+    hoy = datetime.now()
+
+    # Calcular mes anterior
+    if hoy.month == 1:
+        mes_anterior = 12
+        año_anterior = hoy.year - 1
+    else:
+        mes_anterior = hoy.month - 1
+        año_anterior = hoy.year
+
+    movimientos = sheets.obtener_movimientos()
+
+    totales = defaultdict(float)
+
+    for movimiento in movimientos:
+
+        fecha = datetime.strptime(
+            movimiento["Fecha"],
+            "%d/%m/%Y"
+        )
+
+        if fecha.month != mes_anterior or fecha.year != año_anterior:
+            continue
+
+        totales[movimiento["Categoria"]] += float(
+            movimiento["Monto"]
+        )
+
+    if not totales:
+
+        await update.message.reply_text(
+            "📅 El mes anterior no registraste movimientos."
+        )
+
+        return
+
+    # Nombre del mes anterior
+    fecha_mes_anterior = datetime(año_anterior, mes_anterior, 1)
+
+    mensaje = (
+        f"📅 Resumen de {fecha_mes_anterior.strftime('%B %Y')}\n\n"
+    )
+
+    total = 0
+
+    for categoria, monto in sorted(
+        totales.items(),
+        key=lambda x: x[1],
+        reverse=True,
+    ):
+
+        total += monto
+
+        mensaje += (
+            f"{categoria:<18}"
+            f"$ {monto:,.0f}\n"
+        )
+
+    mensaje += (
+        f"\n────────────────\n"
+        f"💰 Total: $ {total:,.0f}"
+    )
+
+    await update.message.reply_text(mensaje)

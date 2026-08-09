@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from services.config import ENV_FILE
 import os
 import logging
-from bot.commands import (hoy, mes, ultimo, ayuda, mensaje_ayuda)
+from bot.commands import (hoy, mes, mesanterior, ultimo, ayuda, mensaje_ayuda)
 from bot.handlers import recibir
 
 from bot.callbacks import (
@@ -75,6 +75,7 @@ app.add_handler(
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("hoy", hoy))
 app.add_handler(CommandHandler("mes", mes))
+app.add_handler(CommandHandler("mesanterior", mesanterior))
 app.add_handler(CommandHandler("ultimo", ultimo))
 app.add_handler(CommandHandler("ayuda", ayuda))
 app.add_handler(CommandHandler("comandos", ayuda))

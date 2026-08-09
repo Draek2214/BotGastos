@@ -133,14 +133,11 @@ class SheetsService:
         return movimientos
     # --------------------------------------------------
 
-    def obtener_ultimo_movimiento(self, usuario):
+    def obtener_ultimo_movimiento(self):
 
         movimientos = self.obtener_movimientos()
-
-        movimientos = [
-            m for m in movimientos
-            if str(m["Usuario"]) == str(usuario)
-        ]
+        
+        
 
         if not movimientos:
             return None
