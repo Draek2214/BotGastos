@@ -9,5 +9,6 @@ CATEGORIAS = [
     "🏠 Hogar",
     "😼 Gatos",
     "📚 Escuela/Jardin",
+    "📱 Tuenti",
     "📦 Otro",
 ]
