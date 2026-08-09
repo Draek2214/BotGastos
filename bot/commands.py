@@ -50,65 +50,6 @@ async def hoy(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(mensaje)
 
-@requiere_autorizacion
-async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    sheets = obtener_sheets(update.effective_user.id)
-
-
-    hoy = datetime.now()
-
-    movimientos = sheets.obtener_movimientos()
-
-    totales = defaultdict(float)
-
-    for movimiento in movimientos:
-
-
-
-        fecha = datetime.strptime(
-            movimiento["Fecha"],
-            "%d/%m/%Y"
-        )
-
-        if fecha.month != hoy.month or fecha.year != hoy.year:
-            continue
-
-        totales[movimiento["Categoria"]] += float(
-            movimiento["Monto"]
-        )
-
-    if not totales:
-
-        await update.message.reply_text(
-            "📅 Este mes no registraste movimientos."
-        )
-
-        return
-
-    mensaje = f"📅 Resumen de {hoy.strftime('%B %Y')}\n\n"
-
-    total = 0
-
-    for categoria, monto in sorted(
-        totales.items(),
-        key=lambda x: x[1],
-        reverse=True,
-    ):
-
-        total += monto
-
-        mensaje += (
-            f"{categoria:<18}"
-            f"$ {monto:,.0f}\n"
-        )
-
-    mensaje += (
-        f"\n────────────────\n"
-        f"💰 Total: $ {total:,.0f}"
-    )
-
-    await update.message.reply_text(mensaje)
-
 @requiere_autorizacion    
 async def ultimo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets = obtener_sheets(update.effective_user.id)
@@ -173,6 +114,125 @@ async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 @requiere_autorizacion
+async def mes(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    sheets = obtener_sheets(update.effective_user.id)
+
+    hoy = datetime.now()
+
+    # Mes y año en curso
+    mes_actual = hoy.month
+    año_actual = hoy.year
+
+    movimientos = sheets.obtener_movimientos()
+
+    # Totales por categoría
+    totales = defaultdict(float)
+
+    # Totales por medio de pago
+    totales_pago = defaultdict(float)
+
+    for movimiento in movimientos:
+
+        fecha = datetime.strptime(
+            movimiento["Fecha"],
+            "%d/%m/%Y"
+        )
+
+        # Solo movimientos del mes en curso
+        if fecha.month != mes_actual or fecha.year != año_actual:
+            continue
+
+        monto = float(movimiento["Monto"])
+
+        # Acumular por categoría
+        totales[movimiento["Categoria"]] += monto
+
+        # Acumular por medio de pago
+        medio_pago = movimiento.get("MedioPago", "").strip()
+
+        if medio_pago:
+            totales_pago[medio_pago] += monto
+
+    if not totales:
+
+        await update.message.reply_text(
+            "📅 Este mes no registraste movimientos."
+        )
+
+        return
+
+    # Nombres de los meses
+    nombres_meses = [
+        "",
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+    ]
+
+    nombre_mes = nombres_meses[mes_actual]
+
+    mensaje = (
+        f"📅 Resumen de {nombre_mes} {año_actual}\n\n"
+    )
+
+    # -------------------------
+    # RESUMEN POR CATEGORÍA
+    # -------------------------
+
+    for categoria, monto in sorted(
+        totales.items(),
+        key=lambda x: x[1],
+        reverse=True,
+    ):
+
+        mensaje += (
+            f"{categoria:<18}"
+            f"$ {monto:,.0f}\n"
+        )
+
+    total = sum(totales.values())
+
+    mensaje += (
+        f"\n────────────────\n"
+        f"💰 Total: $ {total:,.0f}\n"
+    )
+
+    # -------------------------
+    # RESUMEN POR MEDIO DE PAGO
+    # -------------------------
+
+    if totales_pago:
+
+        mensaje += "\n💳 Por medio de pago\n\n"
+
+        for medio_pago, monto in sorted(
+            totales_pago.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        ):
+
+            mensaje += (
+                f"{medio_pago:<18}"
+                f"$ {monto:,.0f}\n"
+            )
+
+        mensaje += (
+            f"\n────────────────\n"
+            f"💰 Total: $ {sum(totales_pago.values()):,.0f}"
+        )
+
+    await update.message.reply_text(mensaje)
+
+@requiere_autorizacion
 async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
     sheets = obtener_sheets(update.effective_user.id)
 
@@ -188,7 +248,11 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     movimientos = sheets.obtener_movimientos()
 
+    # Totales por categoría
     totales = defaultdict(float)
+
+    # Totales por medio de pago
+    totales_pago = defaultdict(float)
 
     for movimiento in movimientos:
 
@@ -200,9 +264,16 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if fecha.month != mes_anterior or fecha.year != año_anterior:
             continue
 
-        totales[movimiento["Categoria"]] += float(
-            movimiento["Monto"]
-        )
+        monto = float(movimiento["Monto"])
+
+        # Acumular por categoría
+        totales[movimiento["Categoria"]] += monto
+
+        # Acumular por medio de pago
+        medio_pago = movimiento.get("MedioPago", "").strip()
+
+        if medio_pago:
+            totales_pago[medio_pago] += monto
 
     if not totales:
 
@@ -212,14 +283,32 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return
 
-    # Nombre del mes anterior
-    fecha_mes_anterior = datetime(año_anterior, mes_anterior, 1)
+    # Nombres de los meses
+    nombres_meses = [
+        "",
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+    ]
+
+    nombre_mes = nombres_meses[mes_anterior]
 
     mensaje = (
-        f"📅 Resumen de {fecha_mes_anterior.strftime('%B %Y')}\n\n"
+        f"📅 Resumen de {nombre_mes} {año_anterior}\n\n"
     )
 
-    total = 0
+    # -------------------------
+    # RESUMEN POR CATEGORÍA
+    # -------------------------
 
     for categoria, monto in sorted(
         totales.items(),
@@ -227,16 +316,39 @@ async def mesanterior(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reverse=True,
     ):
 
-        total += monto
-
         mensaje += (
             f"{categoria:<18}"
             f"$ {monto:,.0f}\n"
         )
 
-    mensaje += (
-        f"\n────────────────\n"
-        f"💰 Total: $ {total:,.0f}"
-    )
+    mensaje += "\n────────────────\n"
+
+    total = sum(totales.values())
+
+    mensaje += f"💰 Total: $ {total:,.0f}\n"
+
+    # -------------------------
+    # RESUMEN POR MEDIO DE PAGO
+    # -------------------------
+
+    if totales_pago:
+
+        mensaje += "\n💳 Por medio de pago\n\n"
+
+        for medio_pago, monto in sorted(
+            totales_pago.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        ):
+
+            mensaje += (
+                f"{medio_pago:<18}"
+                f"$ {monto:,.0f}\n"
+            )
+
+        mensaje += (
+            f"\n────────────────\n"
+            f"💰 Total: $ {sum(totales_pago.values()):,.0f}"
+        )
 
     await update.message.reply_text(mensaje)
