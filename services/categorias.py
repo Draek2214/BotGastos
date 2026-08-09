@@ -1,9 +1,11 @@
 CATEGORIAS = [
     "🛒 Supermercado",
-    "⛽ Combustible",
+    "🥩 Carniceria",
+    "🥦 Verduleria",
     "🍔 Comida",
-    "💊 Farmacia",
+    "⛽  Combustible",
     "🚗 Transporte",
+    "💊 Farmacia",
     "🏠 Hogar",
     "😼 Gatos",
     "📚 Escuela/Jardin",
